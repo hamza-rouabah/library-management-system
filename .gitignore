@@ -1,0 +1,5 @@
+venv
+__pycache__
+.git
+main_ui_design.py
+main.py

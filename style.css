@@ -1,0 +1,57 @@
+QWidget {
+    color: #04345c;
+    background-color: #f3f3f3;
+    font-family: Poppins;
+    font-weight: Regular;
+    font-size: 15px;
+}
+QPushButton {
+    color: #f3f3f3;
+    width: 200px;
+    height: 50px;
+    border-radius: 5;
+    background-color: #048ed6; 
+}
+QPushButton:hover {
+    color: #048ed6;
+    background-color: #f3f3f3;
+    border: 1px solid #048ed6;
+    border-radius: 5px;
+}
+del_button{
+    color: #f3f3f3;
+    width: 200px;
+    height: 50px;
+    border-radius: 5;
+    background-color: #e90f0f;
+}
+del_button:hover {
+    color: #e90f0f;
+    background-color: #f3f3f3;
+    border: 1px solid #e90f0f;
+    border-radius: 5px;
+}
+QLineEdit{
+    background-color: #04345c;
+    color: #f3f3f3;
+    border-radius: 5px;
+    padding: 4px;
+}
+QDateEdit, QComboBox, QSpinBox {
+    background-color: #04345c;
+    color: #f3f3f3;
+    border-radius: 5px;
+    padding: 4px;
+}
+
+QDateEdit::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-left: none;
+    background-color: #04345c; /* Replace with the path to your arrow icon */
+}
+
+
