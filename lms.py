@@ -1,7 +1,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from classes import *
-
+from DB import LibraryDatabase
 class Ui_MainWindow(object):
+    def __init__(self, db):
+        self.db = db
     def setupUi(self, MainWindow):
         #setting up the window, sizing and shit :)
         MainWindow.setObjectName("MainWindow")
@@ -133,19 +135,19 @@ class Ui_MainWindow(object):
 
     def add_book(self):
         #ab_mw stands for add book main window
-        ab_mw = add_book_window()
+        ab_mw = add_book_window(self.db)
         ab_mw.setWindowTitle('Add Book')
         ab_mw.setWindowIcon(QtGui.QIcon(r'graphics/book.png'))
         ab_mw.exec()
     
     def add_mag(self):
-        am_mw = add_magazine_window()
+        am_mw = add_magazine_window(self.db)
         am_mw.setWindowTitle('Add Magazine')
         am_mw.setWindowIcon(QtGui.QIcon(r'graphics/magazine.png'))
         am_mw.exec()
     
     def add_journ(self):
-        aj_mw = add_journal_window()
+        aj_mw = add_journal_window(self.db)
         aj_mw.setWindowTitle('Add Journal')
         aj_mw.setWindowIcon(QtGui.QIcon(r'graphics/journal.png'))
         aj_mw.exec()
@@ -156,7 +158,14 @@ if __name__ == "__main__":
     style = open('style.css').read()
     MainWindow = QtWidgets.QMainWindow()
     MainWindow.setStyleSheet(style)
-    ui = Ui_MainWindow()
+    # create database 
+    db = LibraryDatabase('library.db')
+    db.create_connection()
+    db.create_tables()
+    ui = Ui_MainWindow(db)
     ui.setupUi(MainWindow)
     MainWindow.show()
+    app.aboutToQuit.connect(db.close_connection)
     sys.exit(app.exec())
+
+

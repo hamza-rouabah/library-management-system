@@ -1,3 +1,4 @@
+from DB import *
 from PyQt6 import (
     QtGui as qtg,
     QtCore as qtc,
@@ -21,8 +22,9 @@ class borrow_button(qtw.QPushButton):
         self.setStyleSheet(style)
 
 class add_book_window(qtw.QDialog):
-    def __init__(self) -> None:
+    def __init__(self,db) -> None:
         super().__init__()
+        self.db = db
         self.setStyleSheet(style)
         self.setMaximumSize(400,470)
         self.setMinimumSize(400,470)
@@ -89,12 +91,25 @@ class add_book_window(qtw.QDialog):
         self.add_button.clicked.connect(self.add_book)
         layout.addRow(self.cancel_button, self.add_button)
     def add_book(self):
-        ...
-        #ياجدعان، هنا حط لكود لي يلوح الكتاب في الداتابيز
+        # Get values from input fields
+        isbn = self.isbn.text()
+        title = self.title.text()
+        author = self.author.text()
+        genre = self.genre.currentData()  # Get current data (genre value) from combobox
+        num_pages = int(self.num_pages.text())
+        price = self.price.value()
+        pub_date = self.pub_year.date().toPyDate()  # Convert QDate to Python date
+        copies_available = int(self.num_copies.text())
+        total_copies = int(self.total_copies.text())   
+        # Create a new Book object
+        book = Book(isbn, title, author, genre, num_pages, price, pub_date, copies_available, total_copies)
+        # Add the book to the database
+        book.insert_into_database(self.db.cursor)
 
 class add_magazine_window(qtw.QDialog):
-    def __init__(self) -> None:
+    def __init__(self,db) -> None:
         super().__init__()
+        self.db = db
         self.setStyleSheet(style)
         self.setMaximumSize(400,450)
         self.setMinimumSize(400,450)
@@ -157,11 +172,25 @@ class add_magazine_window(qtw.QDialog):
         self.add_button.clicked.connect(self.add_magazine)
         layout.addRow(self.cancel_button, self.add_button)
     def add_magazine(self):
-        ...
-        
+        # get all values of input fields
+        issn = self.issn.text()
+        title = self.title.text()
+        author = self.author.text()
+        pub_date = self.pub_year.date().toPyDate()
+        issue_num = int(self.issue_num.text())
+        frequency = self.genre.currentData()
+        price = self.price.value()
+        copies_available = int(self.num_copies.text())
+        total_copies = int(self.total_copies.text())
+        # Create a new Magazine object
+        magazine = Magazine(issn, title, author, pub_date, issue_num, frequency, price, copies_available, total_copies)
+        # Add the magazine to the database
+        magazine.insert_into_database(self.db.cursor)
+
 class add_journal_window(qtw.QDialog):
-    def __init__(self) -> None:
+    def __init__(self,db) -> None:
         super().__init__()
+        self.db = db
         self.setStyleSheet(style)
         self.setMaximumSize(400,350)
         self.setMinimumSize(400,35)
@@ -209,4 +238,12 @@ class add_journal_window(qtw.QDialog):
         self.add_button.clicked.connect(self.add_journal)
         layout.addRow(self.cancel_button, self.add_button)
     def add_journal(self):
-        ...
+        # get all input fields
+        doi = self.doi.text()
+        title = self.title.text()
+        author = self.author.text()
+        pub_date = self.pub_year.date().toPyDate()
+        copies_available = int(self.num_copies.text())
+        total_copies = int(self.total_copies.text())
+
+
