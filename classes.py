@@ -12,8 +12,8 @@ class del_button(qtw.QPushButton):
         self.setStyleSheet(style)
 
 class sell_button(qtw.QPushButton):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, title) -> None:
+        super().__init__(title)
         self.setStyleSheet(style)
 
 class borrow_button(qtw.QPushButton):
@@ -26,18 +26,11 @@ class add_book_window(qtw.QDialog):
         super().__init__()
         self.db = db
         self.setStyleSheet(style)
-        self.setMaximumSize(400,470)
-        self.setMinimumSize(400,470)
+        self.setMaximumSize(400,450)
+        self.setMinimumSize(400,450)
         
         layout = qtw.QFormLayout()
         self.setLayout(layout)
-
-        #ISBN Row
-        isbn_label = qtw.QLabel('ISBN')
-        self.isbn = qtw.QLineEdit()
-        self.isbn.setPlaceholderText('enter full ISBN here')
-        layout.addRow(isbn_label)
-        layout.addRow(self.isbn)
 
         #Title Row    
         title_label = qtw.QLabel('Title')
@@ -92,7 +85,6 @@ class add_book_window(qtw.QDialog):
         layout.addRow(self.cancel_button, self.add_button)
     def add_book(self):
         # Get values from input fields
-        isbn = self.isbn.text()
         title = self.title.text()
         author = self.author.text()
         genre = self.genre.currentData()  # Get current data (genre value) from combobox
@@ -102,27 +94,21 @@ class add_book_window(qtw.QDialog):
         copies_available = int(self.num_copies.text())
         total_copies = int(self.total_copies.text())   
         # Create a new Book object
-        book = Book(isbn, title, author, genre, num_pages, price, pub_date, copies_available, total_copies)
+        book = Book(title, author, genre, num_pages, price, pub_date, copies_available, total_copies)
         # Add the book to the database
         book.insert_into_database(self.db.cursor)
+        self.close()
 
 class add_magazine_window(qtw.QDialog):
     def __init__(self,db) -> None:
         super().__init__()
         self.db = db
         self.setStyleSheet(style)
-        self.setMaximumSize(400,450)
-        self.setMinimumSize(400,450)
+        self.setMaximumSize(400,430)
+        self.setMinimumSize(400,430)
         
         layout = qtw.QFormLayout()
         self.setLayout(layout)
-
-        #ISS Row
-        issn_label = qtw.QLabel('ISSN')
-        self.issn = qtw.QLineEdit()
-        self.issn.setPlaceholderText('enter full ISSN here')
-        layout.addRow(issn_label)
-        layout.addRow(self.issn)
 
         #Title Row    
         title_label = qtw.QLabel('Title')
@@ -173,7 +159,6 @@ class add_magazine_window(qtw.QDialog):
         layout.addRow(self.cancel_button, self.add_button)
     def add_magazine(self):
         # get all values of input fields
-        issn = self.issn.text()
         title = self.title.text()
         author = self.author.text()
         pub_date = self.pub_year.date().toPyDate()
@@ -183,27 +168,21 @@ class add_magazine_window(qtw.QDialog):
         copies_available = int(self.num_copies.text())
         total_copies = int(self.total_copies.text())
         # Create a new Magazine object
-        magazine = Magazine(issn, title, author, pub_date, issue_num, frequency, price, copies_available, total_copies)
+        magazine = Magazine(title, author, pub_date, issue_num, frequency, price, copies_available, total_copies)
         # Add the magazine to the database
         magazine.insert_into_database(self.db.cursor)
+        self.close()
 
 class add_journal_window(qtw.QDialog):
     def __init__(self,db) -> None:
         super().__init__()
         self.db = db
         self.setStyleSheet(style)
-        self.setMaximumSize(400,350)
-        self.setMinimumSize(400,35)
+        self.setMaximumSize(400,340)
+        self.setMinimumSize(400,340)
         
         layout = qtw.QFormLayout()
         self.setLayout(layout)
-
-        #DOI Row
-        doi_label = qtw.QLabel('DOI')
-        self.doi = qtw.QLineEdit()
-        self.doi.setPlaceholderText('enter full doi here')
-        layout.addRow(doi_label)
-        layout.addRow(self.doi)
 
         #Title Row    
         title_label = qtw.QLabel('Title')
@@ -223,6 +202,10 @@ class add_journal_window(qtw.QDialog):
         self.pub_year = qtw.QDateEdit()
         layout.addRow('Publication Date', self.pub_year)
 
+        #Issue number
+        self.issue_num = qtw.QLineEdit()
+        layout.addRow('Issue Number', self.issue_num)
+        
         #Copies
         self.num_copies = qtw.QLineEdit()
         self.num_copies.setPlaceholderText('number of available copies')
@@ -239,11 +222,68 @@ class add_journal_window(qtw.QDialog):
         layout.addRow(self.cancel_button, self.add_button)
     def add_journal(self):
         # get all input fields
+        title = self.title.text()
+        author = self.author.text()
+        pub_date = self.pub_year.date().toPyDate()
+        copies_available = int(self.num_copies.text())
+        total_copies = int(self.total_copies.text())
+        self.close()
+
+class sell_order_window(qtw.QDialog):
+    def __init__(self,db, doc_id, doc_price, doc_title) -> None:
+        super().__init__()
+        self.db = db
+        self.setStyleSheet(style)
+        self.setMaximumSize(400,270)
+        self.setMinimumSize(400,270)
+        self.doc_id = doc_id
+        self.doc_price = doc_price
+        self.doc_title = doc_title
+        
+        layout = qtw.QFormLayout()
+        self.setLayout(layout)
+
+        #Document identifier
+        #di is short for document identifier
+        di_label = qtw.QLabel('Document identifier')
+        self.di = qtw.QLineEdit()
+        self.di.setText(str(self.doc_id))
+        self.di.setReadOnly(True)
+        layout.addRow(di_label)
+        layout.addRow(self.di)
+
+        #Title Row   
+        #tl is short for title
+        tl_label = qtw.QLabel('Document Title')
+        self.tl = qtw.QLineEdit()
+        self.tl.setText(self.doc_title)
+        self.tl.setReadOnly(True)
+        layout.addRow(tl_label)
+        layout.addRow(self.tl)
+        
+        #Price Row   
+        #pr is short for price
+        self.pr = qtw.QLineEdit()
+        self.pr.setText(str(self.doc_price))
+        self.pr.setReadOnly(True)
+        layout.addRow('Price',self.pr)
+
+        #Quanity Row    
+        self.quantity = qtw.QLineEdit()
+        self.quantity.setPlaceholderText('how many copies')
+        layout.addRow('Quantity', self.quantity)
+
+        #Add & cancel buttons 
+        self.cancel_button = del_button('Cancel')
+        self.cancel_button.clicked.connect(self.close)
+        self.sell_button = sell_button('Sell')
+        self.sell_button.clicked.connect(self.sell_doc)
+        layout.addRow(self.cancel_button, self.sell_button)
+    def sell_doc(self):
+        # get all input fields
         doi = self.doi.text()
         title = self.title.text()
         author = self.author.text()
         pub_date = self.pub_year.date().toPyDate()
         copies_available = int(self.num_copies.text())
         total_copies = int(self.total_copies.text())
-
-

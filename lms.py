@@ -148,6 +148,7 @@ class Ui_MainWindow(object):
     
     def add_journ(self):
         aj_mw = add_journal_window(self.db)
+        # aj_mw = sell_order_window(self.db, 123456789, 1500, 'Permanent Record')
         aj_mw.setWindowTitle('Add Journal')
         aj_mw.setWindowIcon(QtGui.QIcon(r'graphics/journal.png'))
         aj_mw.exec()
@@ -164,6 +165,7 @@ if __name__ == "__main__":
     db.create_tables()
     ui = Ui_MainWindow(db)
     ui.setupUi(MainWindow)
+    MainWindow.setWindowTitle('Library Management System')
     MainWindow.show()
     app.aboutToQuit.connect(db.close_connection)
     sys.exit(app.exec())
