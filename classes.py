@@ -87,14 +87,14 @@ class add_book_window(qtw.QDialog):
         # Get values from input fields
         title = self.title.text()
         author = self.author.text()
-        genre = self.genre.currentData()  # Get current data (genre value) from combobox
+        genre = self.genre.currentData() 
         num_pages = int(self.num_pages.text())
         price = self.price.value()
-        pub_date = self.pub_year.date().toPyDate()  # Convert QDate to Python date
+        publication_year = self.pub_year.date().toPyDate() 
         copies_available = int(self.num_copies.text())
         total_copies = int(self.total_copies.text())   
         # Create a new Book object
-        book = Book(title, author, genre, num_pages, price, pub_date, copies_available, total_copies)
+        book = Book(title, author, publication_year, copies_available, total_copies, num_pages, genre, price)
         # Add the book to the database
         book.insert_into_database(self.db.cursor)
         self.close()
@@ -161,14 +161,14 @@ class add_magazine_window(qtw.QDialog):
         # get all values of input fields
         title = self.title.text()
         author = self.author.text()
-        pub_date = self.pub_year.date().toPyDate()
+        publication_year = self.pub_year.date().toPyDate()
         issue_num = int(self.issue_num.text())
         frequency = self.genre.currentData()
         price = self.price.value()
         copies_available = int(self.num_copies.text())
         total_copies = int(self.total_copies.text())
         # Create a new Magazine object
-        magazine = Magazine(title, author, pub_date, issue_num, frequency, price, copies_available, total_copies)
+        magazine = Magazine(title, author, publication_year, copies_available, total_copies, issue_num, frequency, price)
         # Add the magazine to the database
         magazine.insert_into_database(self.db.cursor)
         self.close()
@@ -224,9 +224,14 @@ class add_journal_window(qtw.QDialog):
         # get all input fields
         title = self.title.text()
         author = self.author.text()
-        pub_date = self.pub_year.date().toPyDate()
+        publication_year = self.pub_year.date().toPyDate()
         copies_available = int(self.num_copies.text())
         total_copies = int(self.total_copies.text())
+        issue = int(self.issue_num.text())
+        # Create a new Journal object
+        journal = Journal(title, author, publication_year, copies_available, total_copies, issue)
+        # Add the journal to the database
+        journal.insert_into_database(self.db.cursor)
         self.close()
 
 class sell_order_window(qtw.QDialog):
