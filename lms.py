@@ -76,6 +76,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.add_book_button)
         self.add_book_button.clicked.connect(self.add_book)
         
+        
         #add magazine button
         mag_icon = QtGui.QIcon(r'graphics/magazine.png')
         self.add_magazine_button = QtWidgets.QPushButton(parent=self.inner_frame_2)
@@ -102,31 +103,6 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.lower_frame)
         self.tab_widget.addTab(self.home, "")
         
-        #Books Tab
-        self.books = QtWidgets.QWidget()
-        self.books.setObjectName("books")
-        self.tab_widget.addTab(self.books, "")
-        self.book_tab_layout = QtWidgets.QVBoxLayout(self.books)
-        self.books_table_view = books_table(self.db)
-        self.book_tab_layout.addWidget(self.books_table_view)
-        
-
-        #Magazines Tab
-        self.magazines = QtWidgets.QWidget()
-        self.magazines.setObjectName("magazines")
-        self.tab_widget.addTab(self.magazines, "")
-        self.magz_tab_layout = QtWidgets.QVBoxLayout(self.magazines)
-        self.magz_table_view = magazines_table(self.db)
-        self.magz_tab_layout.addWidget(self.magz_table_view)
-
-        #Journals Tab
-        self.journals = QtWidgets.QWidget()
-        self.journals.setObjectName("journals")
-        self.tab_widget.addTab(self.journals, "")
-        self.journal_tab_layout = qtw.QVBoxLayout(self.journals)
-        self.journals_tab_view = journals_table(self.db)
-        self.journal_tab_layout.addWidget(self.journals_tab_view)
-
         # borrowing tab
         self.borrowing = QtWidgets.QWidget()
         self.borrowing.setObjectName("borrowing")
@@ -135,6 +111,30 @@ class Ui_MainWindow(object):
         self.borrowing_tab_view = borrowing_table(self.db)
         self.borrowing_tab_layout.addWidget(self.borrowing_tab_view)
 
+        #Books Tab
+        self.books = QtWidgets.QWidget()
+        self.books.setObjectName("books")
+        self.tab_widget.addTab(self.books, "")
+        self.book_tab_layout = QtWidgets.QVBoxLayout(self.books)
+        self.books_table_view = books_table(self.db, self.borrowing_tab_view)
+        self.book_tab_layout.addWidget(self.books_table_view)
+        
+
+        #Magazines Tab
+        self.magazines = QtWidgets.QWidget()
+        self.magazines.setObjectName("magazines")
+        self.tab_widget.addTab(self.magazines, "")
+        self.magz_tab_layout = QtWidgets.QVBoxLayout(self.magazines)
+        self.magz_table_view = magazines_table(self.db,self.borrowing_tab_view)
+        self.magz_tab_layout.addWidget(self.magz_table_view)
+
+        #Journals Tab
+        self.journals = QtWidgets.QWidget()
+        self.journals.setObjectName("journals")
+        self.tab_widget.addTab(self.journals, "")
+        self.journal_tab_layout = qtw.QVBoxLayout(self.journals)
+        self.journals_tab_view = journals_table(self.db,self.borrowing_tab_view)
+        self.journal_tab_layout.addWidget(self.journals_tab_view)
 
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -160,12 +160,14 @@ class Ui_MainWindow(object):
         ab_mw.setWindowTitle('Add Book')
         ab_mw.setWindowIcon(QtGui.QIcon(r'graphics/book.png'))
         ab_mw.exec()
-    
+        self.books_table_view.populateTable()
+
     def add_mag(self):
         am_mw = add_magazine_window(self.db)
         am_mw.setWindowTitle('Add Magazine')
         am_mw.setWindowIcon(QtGui.QIcon(r'graphics/magazine.png'))
         am_mw.exec()
+        self.magz_table_view.populateTable()
     
     def add_journ(self):
         aj_mw = add_journal_window(self.db)
@@ -173,6 +175,7 @@ class Ui_MainWindow(object):
         aj_mw.setWindowTitle('Add Journal')
         aj_mw.setWindowIcon(QtGui.QIcon(r'graphics/journal.png'))
         aj_mw.exec()
+        self.journals_tab_view.populateTable()
 
 if __name__ == "__main__":
     import sys

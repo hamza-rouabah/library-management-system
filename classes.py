@@ -97,6 +97,7 @@ class add_book_window(qtw.QDialog):
         book = Book(title, author, publication_year, copies_available, total_copies, num_pages, genre, price)
         # Add the book to the database
         book.insert_into_database(self.db.cursor)
+        self.db.connection.commit()
         self.close()
 class add_magazine_window(qtw.QDialog):
     def __init__(self,db) -> None:
@@ -173,6 +174,7 @@ class add_magazine_window(qtw.QDialog):
         magazine = Magazine(title, author, publication_year, copies_available, total_copies, issue_num, frequency, price)
         # Add the magazine to the database
         magazine.insert_into_database(self.db.cursor)
+        self.db.connection.commit()
         self.close()
 class add_journal_window(qtw.QDialog):
     def __init__(self,db) -> None:
@@ -236,12 +238,14 @@ class add_journal_window(qtw.QDialog):
         journal = Journal(title, author, publication_year, copies_available, total_copies, issue)
         # Add the journal to the database
         journal.insert_into_database(self.db.cursor)
+        self.db.connection.commit()
         self.close()
 class books_table(qtw.QWidget):
-    def __init__(self,db):
+    def __init__(self,db, borrowing_table):
         super().__init__()
         self.setupUi()
         self.db = db
+        self.borrowing_table = borrowing_table
         self.doc_type = 'Book'
         # Assuming you have a `books_table` instance called `books_table_widget`
     def setupUi(self):
@@ -313,12 +317,14 @@ class books_table(qtw.QWidget):
         bw.setWindowIcon(qtg.QIcon(r'graphics/borrow.png'))
         bw.exec()
         self.populateTable()
+        self.borrowing_table.populateTable()
 class magazines_table(qtw.QWidget):
-    def __init__(self,db):
+    def __init__(self,db, borrowing_table):
         super().__init__()
         self.setupUi()
         self.db = db
         self.doc_type = 'Magazine'
+        self.borrowing_table = borrowing_table
 
     def setupUi(self):
         self.layout = qtw.QVBoxLayout(self)
@@ -395,11 +401,13 @@ class magazines_table(qtw.QWidget):
         bw.setWindowIcon(qtg.QIcon(r'graphics/borrow.png'))
         bw.exec()
         self.populateTable()
+        self.borrowing_table.populateTable()
 class journals_table(qtw.QWidget):
-    def __init__(self,db):
+    def __init__(self,db, borrowing_table):
         super().__init__()
         self.setupUi()
         self.db = db
+        self.borrowing_table = borrowing_table
 
     def setupUi(self):
         self.layout = qtw.QVBoxLayout(self)
@@ -445,6 +453,7 @@ class journals_table(qtw.QWidget):
         bw.setWindowIcon(borrow_icon)
         bw.exec()
         self.populateTable()
+        self.borrowing_table.populateTable()
     
     def buttonClicked(self, button):
         button_clicked = self.sender()
@@ -594,7 +603,6 @@ class borrow_order_window(qtw.QDialog):
         borrower_name = self.b_name.text()
         borrower_phone_num = self.b_phone.text()
         borrow = Borrow(borrower_name, borrower_phone_num, start_date, return_date, doc_id)
-        print(borrow)
         if borrow.verify_quantity(self.db.cursor):
             borrow.insert_into_database(self.db.cursor)
             borrow.update_copies_available(self.db.cursor)
