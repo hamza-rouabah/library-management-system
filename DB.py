@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class LibraryDatabase:
     def __init__(self, db_name):
         self.db_name = db_name
@@ -95,6 +96,7 @@ class Book(Document):
         document_id = super().insert_into_database(cursor)
         cursor.execute("INSERT INTO Book (Id_Document, num_pages, genre, price) VALUES (?, ?, ?, ?)", 
                             (document_id, self.num_pages, self.genre, self.price))
+        
 
 class Magazine(Document):
     def __init__(self, title, author, publication_year, copies_available, total_copies, issue_num, frequency, price):
