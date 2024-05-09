@@ -103,20 +103,12 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.lower_frame)
         self.tab_widget.addTab(self.home, "")
         
-        # borrowing tab
-        self.borrowing = QtWidgets.QWidget()
-        self.borrowing.setObjectName("borrowing")
-        self.tab_widget.addTab(self.borrowing, "")
-        self.borrowing_tab_layout = qtw.QVBoxLayout(self.borrowing)
-        self.borrowing_tab_view = borrowing_table(self.db)
-        self.borrowing_tab_layout.addWidget(self.borrowing_tab_view)
-
         #Books Tab
         self.books = QtWidgets.QWidget()
         self.books.setObjectName("books")
         self.tab_widget.addTab(self.books, "")
         self.book_tab_layout = QtWidgets.QVBoxLayout(self.books)
-        self.books_table_view = books_table(self.db, self.borrowing_tab_view)
+        self.books_table_view = books_table(self.db)
         self.book_tab_layout.addWidget(self.books_table_view)
         
 
@@ -125,7 +117,7 @@ class Ui_MainWindow(object):
         self.magazines.setObjectName("magazines")
         self.tab_widget.addTab(self.magazines, "")
         self.magz_tab_layout = QtWidgets.QVBoxLayout(self.magazines)
-        self.magz_table_view = magazines_table(self.db,self.borrowing_tab_view)
+        self.magz_table_view = magazines_table(self.db)
         self.magz_tab_layout.addWidget(self.magz_table_view)
 
         #Journals Tab
@@ -133,15 +125,34 @@ class Ui_MainWindow(object):
         self.journals.setObjectName("journals")
         self.tab_widget.addTab(self.journals, "")
         self.journal_tab_layout = qtw.QVBoxLayout(self.journals)
-        self.journals_tab_view = journals_table(self.db,self.borrowing_tab_view)
+        self.journals_tab_view = journals_table(self.db)
         self.journal_tab_layout.addWidget(self.journals_tab_view)
-
+        
+        # borrowing tab
+        self.borrowing = QtWidgets.QWidget()
+        self.borrowing.setObjectName("borrowing")
+        self.tab_widget.addTab(self.borrowing, "")
+        self.borrowing_tab_layout = qtw.QVBoxLayout(self.borrowing)
+        self.borrowing_tab_view = borrowing_table(self.db)
+        self.borrowing_tab_layout.addWidget(self.borrowing_tab_view)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.retranslateUi(MainWindow)
         self.tab_widget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
+        self.tab_widget.currentChanged.connect(self.refreshTables)
+    def refreshTables(self):
+        current_index = self.tab_widget.currentIndex()
+        if current_index == 0:
+            pass
+        elif current_index == 1:
+            self.books_table_view.populateTable()
+        elif current_index == 2:
+            self.magz_table_view.populateTable()
+        elif current_index == 3:
+            self.journals_tab_view.populateTable()
+        elif current_index == 4:
+            self.borrowing_tab_view.populateTable()
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -153,29 +164,23 @@ class Ui_MainWindow(object):
         self.tab_widget.setTabText(self.tab_widget.indexOf(self.magazines), _translate("MainWindow", "Magazines"))
         self.tab_widget.setTabText(self.tab_widget.indexOf(self.journals), _translate("MainWindow", "Journals"))
         self.tab_widget.setTabText(self.tab_widget.indexOf(self.borrowing), _translate("MainWindow", "Borrowing"))
-
     def add_book(self):
         #ab_mw stands for add book main window
         ab_mw = add_book_window(self.db)
         ab_mw.setWindowTitle('Add Book')
         ab_mw.setWindowIcon(QtGui.QIcon(r'graphics/book.png'))
         ab_mw.exec()
-        self.books_table_view.populateTable()
-
     def add_mag(self):
         am_mw = add_magazine_window(self.db)
         am_mw.setWindowTitle('Add Magazine')
         am_mw.setWindowIcon(QtGui.QIcon(r'graphics/magazine.png'))
         am_mw.exec()
-        self.magz_table_view.populateTable()
-    
     def add_journ(self):
         aj_mw = add_journal_window(self.db)
         # aj_mw = borrow_order_window(self.db, 123456789,'Permanent Record')
         aj_mw.setWindowTitle('Add Journal')
         aj_mw.setWindowIcon(QtGui.QIcon(r'graphics/journal.png'))
         aj_mw.exec()
-        self.journals_tab_view.populateTable()
 
 if __name__ == "__main__":
     import sys

@@ -241,7 +241,7 @@ class add_journal_window(qtw.QDialog):
         self.db.connection.commit()
         self.close()
 class books_table(qtw.QWidget):
-    def __init__(self,db, borrowing_table):
+    def __init__(self,db):
         super().__init__()
         self.setupUi()
         self.db = db
@@ -317,9 +317,8 @@ class books_table(qtw.QWidget):
         bw.setWindowIcon(qtg.QIcon(r'graphics/borrow.png'))
         bw.exec()
         self.populateTable()
-        self.borrowing_table.populateTable()
 class magazines_table(qtw.QWidget):
-    def __init__(self,db, borrowing_table):
+    def __init__(self,db):
         super().__init__()
         self.setupUi()
         self.db = db
@@ -401,13 +400,11 @@ class magazines_table(qtw.QWidget):
         bw.setWindowIcon(qtg.QIcon(r'graphics/borrow.png'))
         bw.exec()
         self.populateTable()
-        self.borrowing_table.populateTable()
 class journals_table(qtw.QWidget):
-    def __init__(self,db, borrowing_table):
+    def __init__(self,db):
         super().__init__()
         self.setupUi()
         self.db = db
-        self.borrowing_table = borrowing_table
 
     def setupUi(self):
         self.layout = qtw.QVBoxLayout(self)
@@ -453,7 +450,6 @@ class journals_table(qtw.QWidget):
         bw.setWindowIcon(borrow_icon)
         bw.exec()
         self.populateTable()
-        self.borrowing_table.populateTable()
     
     def buttonClicked(self, button):
         button_clicked = self.sender()
@@ -472,14 +468,6 @@ class journals_table(qtw.QWidget):
                         if widget:
                             data.append(widget.text())
                 self.borrow_journal(data[0], data[2])
-class UnborrowConfirmationWindow(qtw.QMessageBox):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Confirmation")
-        self.setWindowIcon(qtg.QIcon(r'graphics/borrow.png'))
-        self.setText("Are you sure you want to unborrow this book?")
-        self.setStandardButtons(qtw.QMessageBox.StandardButton.Yes | qtw.QMessageBox.StandardButton.No)
-        self.setDefaultButton(qtw.QMessageBox.StandardButton.No)
 class borrowing_table(qtw.QWidget):
     def __init__(self, db):
         super().__init__()
@@ -495,8 +483,9 @@ class borrowing_table(qtw.QWidget):
     def populateTable(self):
         connection = sqlite3.connect('library.db')
         cur = connection.cursor()
-        cur.execute("""SELECT Borrow.Id_Borrow_book, Borrow.borrower_name, Borrow.borrower_phone_num, Borrow.start_date, Borrow.return_date
+        cur.execute("""SELECT Borrow.Id_Borrow_book, Document.title, Borrow.borrower_name, Borrow.borrower_phone_num, Borrow.start_date, Borrow.return_date
                         FROM Borrow
+                        JOIN Document ON Borrow.Id_Document = Document.Id_Document
                     """)
         rows = cur.fetchall()
 
@@ -540,6 +529,13 @@ class borrowing_table(qtw.QWidget):
         self.db.cursor.execute("DELETE FROM Borrow WHERE Id_Borrow_book = ?", (borrow_id,))
         self.db.connection.commit()
         self.populateTable()
+class UnborrowConfirmationWindow(qtw.QMessageBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Confirmation")
+        self.setText("Are you sure you want to unborrow this book?")
+        self.setStandardButtons(qtw.QMessageBox.StandardButton.Yes | qtw.QMessageBox.StandardButton.No)
+        self.setDefaultButton(qtw.QMessageBox.StandardButton.No)
 class borrow_order_window(qtw.QDialog):
     def __init__(self,db, doc_id, doc_title) -> None:
         super().__init__()
