@@ -63,9 +63,11 @@ class add_book_window(qtw.QDialog):
         self.price = qtw.QSpinBox(value=10, maximum=1000000, minimum=1, suffix='  DA', singleStep=10)
         layout.addRow('Price', self.price)
 
-        #Pub Date
         self.pub_year = qtw.QDateEdit()
-        layout.addRow('Publication Date', self.pub_year)
+        initial_date = qtc.QDate(2024, 1, 1)  # Set the initial date to January 1, 2024
+        self.pub_year.setDate(initial_date)
+        self.pub_year.setDisplayFormat("yyyy")  # Display only the year
+        layout.addRow('Publication Year', self.pub_year)
 
         #Copies
         self.num_copies = qtw.QLineEdit()
@@ -90,7 +92,7 @@ class add_book_window(qtw.QDialog):
         genre = self.genre.currentData() 
         num_pages = int(self.num_pages.text())
         price = self.price.value()
-        publication_year = self.pub_year.date().toPyDate() 
+        publication_year = self.pub_year.date().year()
         copies_available = int(self.num_copies.text())
         total_copies = int(self.total_copies.text())   
         # Create a new Book object
@@ -124,9 +126,11 @@ class add_magazine_window(qtw.QDialog):
         layout.addRow(author_label)
         layout.addRow(self.author)
 
-        #Pub Date
         self.pub_year = qtw.QDateEdit()
-        layout.addRow('Publication Date', self.pub_year)
+        initial_date = qtc.QDate(2024, 1, 1)  # Set the initial date to January 1, 2024
+        self.pub_year.setDate(initial_date)
+        self.pub_year.setDisplayFormat("yyyy")  # Display only the year
+        layout.addRow('Publication Year', self.pub_year)
 
         #Issue number
         self.issue_num = qtw.QLineEdit()
@@ -164,7 +168,7 @@ class add_magazine_window(qtw.QDialog):
         # get all values of input fields
         title = self.title.text()
         author = self.author.text()
-        publication_year = self.pub_year.date().toPyDate()
+        publication_year = self.pub_year.date().year()
         issue_num = int(self.issue_num.text())
         frequency = self.genre.currentData()
         price = self.price.value()
@@ -201,9 +205,11 @@ class add_journal_window(qtw.QDialog):
         layout.addRow(author_label)
         layout.addRow(self.author)
 
-        #Pub Date
         self.pub_year = qtw.QDateEdit()
-        layout.addRow('Publication Date', self.pub_year)
+        initial_date = qtc.QDate(2024, 1, 1)  # Set the initial date to January 1, 2024
+        self.pub_year.setDate(initial_date)
+        self.pub_year.setDisplayFormat("yyyy")  # Display only the year
+        layout.addRow('Publication Year', self.pub_year)
 
         #Issue number
         self.issue_num = qtw.QLineEdit()
@@ -230,7 +236,7 @@ class add_journal_window(qtw.QDialog):
         # get all input fields
         title = self.title.text()
         author = self.author.text()
-        publication_year = self.pub_year.date().toPyDate()
+        publication_year = self.pub_year.date().year()
         copies_available = int(self.num_copies.text())
         total_copies = int(self.total_copies.text())
         issue = int(self.issue_num.text())
@@ -285,7 +291,13 @@ class books_table(qtw.QWidget):
                 btn2 = borrow_button("Borrow")
                 btn2.clicked.connect(lambda _, i=i: self.buttonClicked("Borrow"))
                 self.tableWidget.setCellWidget(i, len(row) + 1, btn2)
-                
+
+             # Enable sorting when clicking on the header
+            self.tableWidget.horizontalHeader().sectionClicked.connect(self.sortTable)
+
+    def sortTable(self, logicalIndex):
+        self.tableWidget.sortItems(logicalIndex)
+            
     def buttonClicked(self, button):
         button_clicked = self.sender()
         if button_clicked:
@@ -367,6 +379,12 @@ class magazines_table(qtw.QWidget):
                 btn2 = borrow_button("Borrow")
                 btn2.clicked.connect(lambda _, i=i: self.buttonClicked("Borrow"))
                 self.tableWidget.setCellWidget(i, len(row) + 1, btn2)
+
+            # Enable sorting when clicking on the header
+            self.tableWidget.horizontalHeader().sectionClicked.connect(self.sortTable)
+
+    def sortTable(self, logicalIndex):
+        self.tableWidget.sortItems(logicalIndex)
     
     def buttonClicked(self, button):
         button_clicked = self.sender()
@@ -443,6 +461,13 @@ class journals_table(qtw.QWidget):
                 btn1.clicked.connect(lambda _, i=i: self.buttonClicked("Borrow"))
                 self.tableWidget.setCellWidget(i, len(row), btn1)
 
+            # Enable sorting when clicking on the header
+            self.tableWidget.horizontalHeader().sectionClicked.connect(self.sortTable)
+
+    def sortTable(self, logicalIndex):
+        self.tableWidget.sortItems(logicalIndex)
+
+
     def borrow_journal(self, doc_id, doc_title):
         #bw short for sell window
         bw = borrow_order_window(self.db, doc_id, doc_title)
@@ -509,6 +534,12 @@ class borrowing_table(qtw.QWidget):
                 unborrow_btn = qtw.QPushButton("Unborrow", self)
                 unborrow_btn.clicked.connect(lambda _, i=i: self.unborrowButtonClicked(i))
                 self.tableWidget.setCellWidget(i, len(row), unborrow_btn)
+
+            # Enable sorting when clicking on the header
+            self.tableWidget.horizontalHeader().sectionClicked.connect(self.sortTable)
+
+    def sortTable(self, logicalIndex):
+        self.tableWidget.sortItems(logicalIndex)
 
     def unborrowButtonClicked(self, row):
         # Get the ID of the borrowed book from the selected row
