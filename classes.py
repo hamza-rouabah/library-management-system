@@ -237,85 +237,18 @@ class add_journal_window(qtw.QDialog):
         # Add the journal to the database
         journal.insert_into_database(self.db.cursor)
         self.close()
-class sell_order_window(qtw.QDialog):
-    def __init__(self,db, doc_id, doc_price, doc_title) -> None:
-        super().__init__()
-        self.db = db
-        self.setStyleSheet(style)
-        self.setMaximumSize(400,290)
-        self.setMinimumSize(400,290)
-        self.doc_id = doc_id
-        self.doc_price = doc_price
-        self.doc_title = doc_title
-        
-        layout = qtw.QFormLayout()
-        self.setLayout(layout)
-
-        #Document identifier
-        #di is short for document identifier
-        di_label = qtw.QLabel('Document identifier')
-        self.di = qtw.QLineEdit()
-        self.di.setText(str(self.doc_id))
-        self.di.setReadOnly(True)
-        layout.addRow(di_label)
-        layout.addRow(self.di)
-
-        #Title Row   
-        #tl is short for title
-        tl_label = qtw.QLabel('Document Title')
-        self.tl = qtw.QLineEdit()
-        self.tl.setText(self.doc_title)
-        self.tl.setReadOnly(True)
-        layout.addRow(tl_label)
-        layout.addRow(self.tl)
-        
-        #Price Row   
-        #pr is short for price
-        self.pr = qtw.QLineEdit()
-        self.pr.setText(str(self.doc_price))
-        self.pr.setReadOnly(True)
-        layout.addRow('Price',self.pr)
-
-        #Quanity Row    
-        self.quantity = qtw.QLineEdit()
-        self.quantity.setPlaceholderText('how many copies')
-        self.quantity.setText('0')
-        self.quantity.setValidator(qtg.QIntValidator())
-        layout.addRow('Quantity', self.quantity)
-
-        #Total Row    
-        self.total = qtw.QLineEdit()
-        self.total.setText(f'{int(self.quantity.text()) * int(self.pr.text())}')
-        self.total.setReadOnly(True)
-        self.quantity.textChanged.connect(self.set_total)
-        layout.addRow('Total', self.total)
-
-        #Add & cancel buttons 
-        self.cancel_button = del_button('Cancel')
-        self.cancel_button.clicked.connect(self.close)
-        self.sell_button = sell_button('Sell')
-        self.sell_button.clicked.connect(self.sell_doc)
-        layout.addRow(self.cancel_button, self.sell_button)
-    def sell_doc(self):
-        # get all input fields
-        ...
-    
-    def set_total(self):
-        if self.quantity.text() == '':
-            self.total.setText('0')
-        else:
-            self.total.setText(f'{int(self.quantity.text()) * int(self.pr.text())}')
 class books_table(qtw.QWidget):
-    def __init__(self):
+    def __init__(self,db):
         super().__init__()
         self.setupUi()
-
+        self.db = db
+        self.doc_type = 'Book'
+        # Assuming you have a `books_table` instance called `books_table_widget`
     def setupUi(self):
         self.layout = qtw.QVBoxLayout(self)
         self.tableWidget = qtw.QTableWidget()
         self.layout.addWidget(self.tableWidget)
         self.populateTable()
-
     def populateTable(self):
         connection = sqlite3.connect('library.db')
         self.cur = connection.cursor()
@@ -348,7 +281,6 @@ class books_table(qtw.QWidget):
                 btn2 = borrow_button("Borrow")
                 btn2.clicked.connect(lambda _, i=i: self.buttonClicked("Borrow"))
                 self.tableWidget.setCellWidget(i, len(row) + 1, btn2)
-
     def buttonClicked(self, button):
         button_clicked = self.sender()
         if button_clicked:
@@ -370,19 +302,23 @@ class books_table(qtw.QWidget):
                 elif button == 'Borrow':
                     self.borrow_book(data[0], data[1])
     def sell_book(self, doc_id, doc_title, doc_price):
-        sw = sell_order_window(db, doc_id, doc_price, doc_title)
+        sw = sell_order_window(self.db, doc_id, doc_price, doc_title, self.doc_type)
         sw.setWindowTitle('Sell Book')
         sw.setWindowIcon(qtg.QIcon(r'graphics/sell.png'))
         sw.exec()
+        self.populateTable()
     def borrow_book(self, doc_id, doc_title):
-        bw = borrow_order_window(db, doc_id, doc_title)
+        bw = borrow_order_window(self.db, doc_id, doc_title)
         bw.setWindowTitle('Borrow Book')
         bw.setWindowIcon(qtg.QIcon(r'graphics/borrow.png'))
         bw.exec()
+        self.populateTable()
 class magazines_table(qtw.QWidget):
-    def __init__(self):
+    def __init__(self,db):
         super().__init__()
         self.setupUi()
+        self.db = db
+        self.doc_type = 'Magazine'
 
     def setupUi(self):
         self.layout = qtw.QVBoxLayout(self)
@@ -448,20 +384,22 @@ class magazines_table(qtw.QWidget):
                     self.borrow_magazine(data[0], data[4])
 
     def sell_magazine(self, doc_id, doc_title, doc_price):
-        sw = sell_order_window(db, doc_id, doc_price, doc_title)
+        sw = sell_order_window(self.db, doc_id, doc_price, doc_title, self.doc_type)
         sw.setWindowTitle('Sell Magazine')
         sw.setWindowIcon(qtg.QIcon(r'graphics/sell.png'))
         sw.exec()
-        
+        self.populateTable()
     def borrow_magazine(self, doc_id, doc_title):
-        bw = borrow_order_window(db, doc_id, doc_title)
+        bw = borrow_order_window(self.db, doc_id, doc_title)
         bw.setWindowTitle('Borrow Magazine')
         bw.setWindowIcon(qtg.QIcon(r'graphics/borrow.png'))
         bw.exec()
+        self.populateTable()
 class journals_table(qtw.QWidget):
-    def __init__(self):
+    def __init__(self,db):
         super().__init__()
         self.setupUi()
+        self.db = db
 
     def setupUi(self):
         self.layout = qtw.QVBoxLayout(self)
@@ -501,11 +439,12 @@ class journals_table(qtw.QWidget):
 
     def borrow_journal(self, doc_id, doc_title):
         #bw short for sell window
-        bw = borrow_order_window(db, doc_id, doc_title)
+        bw = borrow_order_window(self.db, doc_id, doc_title)
         bw.setWindowTitle('Borrow Journal')
         borrow_icon = qtg.QIcon(r'graphics/borrow.png')
         bw.setWindowIcon(borrow_icon)
         bw.exec()
+        self.populateTable()
     
     def buttonClicked(self, button):
         button_clicked = self.sender()
@@ -524,13 +463,80 @@ class journals_table(qtw.QWidget):
                         if widget:
                             data.append(widget.text())
                 self.borrow_journal(data[0], data[2])
+class UnborrowConfirmationWindow(qtw.QMessageBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Confirmation")
+        self.setText("Are you sure you want to unborrow this book?")
+        self.setStandardButtons(qtw.QMessageBox.StandardButton.Yes | qtw.QMessageBox.StandardButton.No)
+        self.setDefaultButton(qtw.QMessageBox.StandardButton.No)
+class borrowing_table(qtw.QWidget):
+    def __init__(self, db):
+        super().__init__()
+        self.db = db
+        self.setupUi()
+
+    def setupUi(self):
+        self.layout = qtw.QVBoxLayout(self)
+        self.tableWidget = qtw.QTableWidget()
+        self.layout.addWidget(self.tableWidget)
+        self.populateTable()
+
+    def populateTable(self):
+        connection = sqlite3.connect('library.db')
+        cur = connection.cursor()
+        cur.execute("""SELECT Borrow.Id_Borrow_book, Borrow.borrower_name, Borrow.borrower_phone_num, Borrow.start_date, Borrow.return_date
+                        FROM Borrow
+                    """)
+        rows = cur.fetchall()
+
+        self.tableWidget.setRowCount(len(rows))
+        if len(rows) > 0:
+            self.tableWidget.setColumnCount(len(rows[0]) + 1)  # Set number of columns, plus one for the button
+
+            # Set horizontal header labels
+            column_names = [description[0] for description in cur.description]
+            column_names.append("Unborrow")  # Add column for unborrow button
+            self.tableWidget.setHorizontalHeaderLabels(column_names)
+
+            # Populate the table with data
+            for i, row in enumerate(rows):
+                for j, value in enumerate(row):
+                    item = qtw.QTableWidgetItem(str(value))
+                    self.tableWidget.setItem(i, j, item)
+
+                # Add unborrow button to the last column
+                unborrow_btn = qtw.QPushButton("Unborrow", self)
+                unborrow_btn.clicked.connect(lambda _, i=i: self.unborrowButtonClicked(i))
+                self.tableWidget.setCellWidget(i, len(row), unborrow_btn)
+
+    def unborrowButtonClicked(self, row):
+        # Get the ID of the borrowed book from the selected row
+        borrow_id = self.tableWidget.item(row, 0).text()  # Assuming the ID is in the first column
+
+        # Show confirmation dialog
+        confirmation_dialog = UnborrowConfirmationWindow(self)
+        response = confirmation_dialog.exec()
+        if response == qtw.QMessageBox.StandardButton.Yes:
+            # Perform the unborrow action
+            self.unborrowBook(borrow_id)
+
+    def unborrowBook(self, borrow_id):
+        # update copies_available in Document
+        self.db.cursor.execute("SELECT Id_Document FROM Borrow WHERE Id_Borrow_book = ?", (borrow_id,))
+        doc_id = self.db.cursor.fetchone()[0]
+        self.db.cursor.execute("UPDATE Document SET copies_available = copies_available + 1 WHERE Id_Document = ?", (doc_id,))
+        # Delete the borrow record from the database
+        self.db.cursor.execute("DELETE FROM Borrow WHERE Id_Borrow_book = ?", (borrow_id,))
+        self.db.connection.commit()
+        self.populateTable()
 class borrow_order_window(qtw.QDialog):
     def __init__(self,db, doc_id, doc_title) -> None:
         super().__init__()
         self.db = db
         self.setStyleSheet(style)
-        self.setMaximumSize(400,420)
-        self.setMinimumSize(400,420)
+        self.setMaximumSize(400,370)
+        self.setMinimumSize(400,370)
         self.doc_id = doc_id
         self.doc_title = doc_title
         
@@ -568,13 +574,6 @@ class borrow_order_window(qtw.QDialog):
         layout.addRow(b_phone_label)
         layout.addRow(self.b_phone)
 
-        #Quanity Row    
-        self.quantity = qtw.QLineEdit()
-        self.quantity.setPlaceholderText('how many copies')
-        self.quantity.setText('0')
-        self.quantity.setValidator(qtg.QIntValidator())
-        layout.addRow('Quantity', self.quantity)
-
         #Start and return dates
         self.start_date = qtw.QDateEdit()
         layout.addRow('Start Date', self.start_date)
@@ -588,6 +587,97 @@ class borrow_order_window(qtw.QDialog):
         self.borrow_button.clicked.connect(self.borrow_doc)
         layout.addRow(self.cancel_button, self.borrow_button)
     def borrow_doc(self):
-        # هنا الكود لي يحط البورو في الداتابيز
-        ...
-    
+        # get all input fields
+        start_date = self.start_date.date().toPyDate()
+        return_date = self.return_date.date().toPyDate()
+        doc_id = self.doc_id
+        borrower_name = self.b_name.text()
+        borrower_phone_num = self.b_phone.text()
+        borrow = Borrow(borrower_name, borrower_phone_num, start_date, return_date, doc_id)
+        print(borrow)
+        if borrow.verify_quantity(self.db.cursor):
+            borrow.insert_into_database(self.db.cursor)
+            borrow.update_copies_available(self.db.cursor)
+            self.db.connection.commit()
+            self.close()
+        else:
+            qtw.QMessageBox.warning(self, 'Error', 'The quantity is greater than the available copies.')
+class sell_order_window(qtw.QDialog):
+    def __init__(self,db, doc_id, doc_price, doc_title,doc_type) -> None:
+        super().__init__()
+        self.db = db
+        self.setStyleSheet(style)
+        self.setMaximumSize(400,290)
+        self.setMinimumSize(400,290)
+        self.doc_id = doc_id
+        self.doc_price = doc_price
+        self.doc_title = doc_title
+        self.doc_type = doc_type
+
+        layout = qtw.QFormLayout()
+        self.setLayout(layout)
+
+        #Document identifier
+        #di is short for document identifier
+        di_label = qtw.QLabel('Document identifier')
+        self.di = qtw.QLineEdit()
+        self.di.setText(str(self.doc_id))
+        self.di.setReadOnly(True)
+        layout.addRow(di_label)
+        layout.addRow(self.di)
+
+        #Title Row   
+        #tl is short for title
+        tl_label = qtw.QLabel('Document Title')
+        self.tl = qtw.QLineEdit()
+        self.tl.setText(self.doc_title)
+        self.tl.setReadOnly(True)
+        layout.addRow(tl_label)
+        layout.addRow(self.tl)
+        
+        #Price Row   
+        #pr is short for price
+        self.pr = qtw.QLineEdit()
+        self.pr.setText(str(self.doc_price))
+        self.pr.setReadOnly(True)
+        layout.addRow('Price',self.pr)
+
+        #Quanity Row    
+        self.quantity = qtw.QLineEdit()
+        self.quantity.setPlaceholderText('how many copies')
+        self.quantity.setText('0')
+        self.quantity.setValidator(qtg.QIntValidator())
+        layout.addRow('Quantity', self.quantity)
+
+        #Total Row    
+        self.total = qtw.QLineEdit()
+        self.total.setText(f'{int(self.quantity.text()) * int(self.pr.text())}')
+        self.total.setReadOnly(True)
+        self.quantity.textChanged.connect(self.set_total)
+        layout.addRow('Total', self.total)
+
+        #Add & cancel buttons 
+        self.cancel_button = del_button('Cancel')
+        self.cancel_button.clicked.connect(self.close)
+        self.sell_button = sell_button('Sell')
+        self.sell_button.clicked.connect(self.sell_doc)
+        layout.addRow(self.cancel_button, self.sell_button)
+    def sell_doc(self):
+        # get all input fields
+        quantity = int(self.quantity.text())
+        total = int(self.total.text())
+        doc_id = self.doc_id
+        doc_type = self.doc_type
+        sell = Sell(self.doc_price, quantity, total, doc_id, doc_type)
+        if sell.verify_quantity(self.db.cursor):
+            sell.update_copies_available(self.db.cursor)
+            sell.insert_into_database(self.db.cursor)
+            self.db.connection.commit()
+            self.close()
+        else:
+            qtw.QMessageBox.warning(self, 'Error', 'The quantity is greater than the available copies.')
+    def set_total(self):
+        if self.quantity.text() == '':
+            self.total.setText('0')
+        else:
+            self.total.setText(f'{int(self.quantity.text()) * int(self.pr.text())}')

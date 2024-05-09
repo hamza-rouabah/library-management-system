@@ -107,7 +107,7 @@ class Ui_MainWindow(object):
         self.books.setObjectName("books")
         self.tab_widget.addTab(self.books, "")
         self.book_tab_layout = QtWidgets.QVBoxLayout(self.books)
-        self.books_table_view = books_table()
+        self.books_table_view = books_table(self.db)
         self.book_tab_layout.addWidget(self.books_table_view)
         
 
@@ -116,7 +116,7 @@ class Ui_MainWindow(object):
         self.magazines.setObjectName("magazines")
         self.tab_widget.addTab(self.magazines, "")
         self.magz_tab_layout = QtWidgets.QVBoxLayout(self.magazines)
-        self.magz_table_view = magazines_table()
+        self.magz_table_view = magazines_table(self.db)
         self.magz_tab_layout.addWidget(self.magz_table_view)
 
         #Journals Tab
@@ -124,8 +124,18 @@ class Ui_MainWindow(object):
         self.journals.setObjectName("journals")
         self.tab_widget.addTab(self.journals, "")
         self.journal_tab_layout = qtw.QVBoxLayout(self.journals)
-        self.journals_tab_view = journals_table()
+        self.journals_tab_view = journals_table(self.db)
         self.journal_tab_layout.addWidget(self.journals_tab_view)
+
+        # borrowing tab
+        self.borrowing = QtWidgets.QWidget()
+        self.borrowing.setObjectName("borrowing")
+        self.tab_widget.addTab(self.borrowing, "")
+        self.borrowing_tab_layout = qtw.QVBoxLayout(self.borrowing)
+        self.borrowing_tab_view = borrowing_table(self.db)
+        self.borrowing_tab_layout.addWidget(self.borrowing_tab_view)
+
+
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.retranslateUi(MainWindow)
@@ -142,6 +152,7 @@ class Ui_MainWindow(object):
         self.tab_widget.setTabText(self.tab_widget.indexOf(self.books), _translate("MainWindow", "Books"))
         self.tab_widget.setTabText(self.tab_widget.indexOf(self.magazines), _translate("MainWindow", "Magazines"))
         self.tab_widget.setTabText(self.tab_widget.indexOf(self.journals), _translate("MainWindow", "Journals"))
+        self.tab_widget.setTabText(self.tab_widget.indexOf(self.borrowing), _translate("MainWindow", "Borrowing"))
 
     def add_book(self):
         #ab_mw stands for add book main window
@@ -162,7 +173,6 @@ class Ui_MainWindow(object):
         aj_mw.setWindowTitle('Add Journal')
         aj_mw.setWindowIcon(QtGui.QIcon(r'graphics/journal.png'))
         aj_mw.exec()
-
 
 if __name__ == "__main__":
     import sys
