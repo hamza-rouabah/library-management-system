@@ -13,7 +13,7 @@ def generate_fake_book():
     total_copies = copies_available 
     num_pages = random.randint(50, 500)
     genre = fake.word()
-    price = round(random.uniform(5, 50), 2)
+    price = int(round(random.uniform(5, 50), 2))
     
     return Book(title, author, publication_year, copies_available, total_copies, num_pages, genre, price)
 
@@ -26,7 +26,7 @@ def generate_fake_magazine():
     total_copies = copies_available 
     issue_num = random.randint(1, 12)
     frequency = fake.word()
-    price = round(random.uniform(5, 50), 2)
+    price = int(round(random.uniform(5, 50), 2))
     
     return Magazine(title, author, publication_year, copies_available, total_copies, issue_num, frequency, price)
 
@@ -44,23 +44,23 @@ def generate_fake_journal():
 # main function
 def main():
     # Connect to the SQLite database file
-    conn = sqlite3.connect('library.db')
-    cursor = conn.cursor()
+    db = LibraryDatabase("library.db")
+    conn = db.create_connection()
+    db.create_tables()
 
     # Define your classes and generate fake data (assuming you have already defined the classes and generated fake data)
 
     # generate 10 fake data for a Book , Magazine and Journal and insert them into the database
     for i in range(10):
         book = generate_fake_book()
-        book.insert_into_database(cursor)
+        book.insert_into_database(db.cursor)
         magazine = generate_fake_magazine()
-        magazine.insert_into_database(cursor)
+        magazine.insert_into_database(db.cursor)
         journal = generate_fake_journal()
-        journal.insert_into_database(cursor)
+        journal.insert_into_database(db.cursor)
 
     # Commit changes and close connection
-    conn.commit()
-    conn.close()
+    db.close_connection()
 
 if __name__ == "__main__":
     main()
