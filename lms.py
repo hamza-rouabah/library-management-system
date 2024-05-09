@@ -1,15 +1,16 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from classes import *
 from DB import LibraryDatabase
+import sqlite3
 class Ui_MainWindow(object):
     def __init__(self, db):
         self.db = db
     def setupUi(self, MainWindow):
         #setting up the window, sizing and shit :)
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1280, 720)
-        MainWindow.setMinimumSize(QtCore.QSize(1280, 720))
-        MainWindow.setMaximumSize(QtCore.QSize(1280, 720))
+        MainWindow.resize(1280, 740)
+        MainWindow.setMinimumSize(QtCore.QSize(1280, 740))
+        MainWindow.setMaximumSize(QtCore.QSize(1280, 740))
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setMinimumSize(QtCore.QSize(1280, 720))
         self.centralwidget.setMaximumSize(QtCore.QSize(1280, 720))
@@ -45,7 +46,10 @@ class Ui_MainWindow(object):
         self.label.setMinimumSize(QtCore.QSize(600, 184))
         self.label.setMaximumSize(QtCore.QSize(600, 184))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap(".\\graphics/lms_logo.png"))
+        gif = QtGui.QMovie(r'graphics/lms_gif.gif')
+        gif.setScaledSize(QtCore.QSize(600,184))
+        self.label.setMovie(gif)
+        gif.start()
         self.label.setObjectName("label")
         self.horizontalLayout.addWidget(self.label)
         self.verticalLayout.addWidget(self.upper_frame)
@@ -75,7 +79,6 @@ class Ui_MainWindow(object):
         self.add_book_button.setObjectName("add_book_button")
         self.horizontalLayout_3.addWidget(self.add_book_button)
         self.add_book_button.clicked.connect(self.add_book)
-        
         
         #add magazine button
         mag_icon = QtGui.QIcon(r'graphics/magazine.png')
@@ -110,7 +113,6 @@ class Ui_MainWindow(object):
         self.book_tab_layout = QtWidgets.QVBoxLayout(self.books)
         self.books_table_view = books_table(self.db)
         self.book_tab_layout.addWidget(self.books_table_view)
-        
 
         #Magazines Tab
         self.magazines = QtWidgets.QWidget()
@@ -138,10 +140,13 @@ class Ui_MainWindow(object):
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.retranslateUi(MainWindow)
+        self.addStatusBar(MainWindow)
         self.tab_widget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.tab_widget.currentChanged.connect(self.refreshTables)
+        
     def refreshTables(self):
+        self.addStatusBar(MainWindow)
         current_index = self.tab_widget.currentIndex()
         if current_index == 0:
             pass
@@ -153,6 +158,7 @@ class Ui_MainWindow(object):
             self.journals_tab_view.populateTable()
         elif current_index == 4:
             self.borrowing_tab_view.populateTable()
+            
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -164,17 +170,33 @@ class Ui_MainWindow(object):
         self.tab_widget.setTabText(self.tab_widget.indexOf(self.magazines), _translate("MainWindow", "Magazines"))
         self.tab_widget.setTabText(self.tab_widget.indexOf(self.journals), _translate("MainWindow", "Journals"))
         self.tab_widget.setTabText(self.tab_widget.indexOf(self.borrowing), _translate("MainWindow", "Borrowing"))
+
+    def addStatusBar(self, MainWindow):
+        connection = sqlite3.connect('library.db')
+        cur = connection.cursor()
+        cur.execute("SELECT SUM(total) FROM Sell")
+        total_sum = str(cur.fetchall()).strip('[(,)]')
+        cur.execute("SELECT SUM(quantity) FROM Sell")
+        total_quantity = str(cur.fetchall()).strip('[(,)]')
+        cur.execute("SELECT COUNT(*) FROM Borrow")
+        total_borrowed = str(cur.fetchall()).strip('[(,)]')
+        cur.close()
+        connection.close()
+        MainWindow.statusBar().showMessage(f'Total Documents Sold: {total_quantity}         Total Value: {total_sum} DA          Total Borrowed Documents: {total_borrowed}')   
+
     def add_book(self):
         #ab_mw stands for add book main window
         ab_mw = add_book_window(self.db)
         ab_mw.setWindowTitle('Add Book')
         ab_mw.setWindowIcon(QtGui.QIcon(r'graphics/book.png'))
         ab_mw.exec()
+        
     def add_mag(self):
         am_mw = add_magazine_window(self.db)
         am_mw.setWindowTitle('Add Magazine')
         am_mw.setWindowIcon(QtGui.QIcon(r'graphics/magazine.png'))
         am_mw.exec()
+
     def add_journ(self):
         aj_mw = add_journal_window(self.db)
         # aj_mw = borrow_order_window(self.db, 123456789,'Permanent Record')
@@ -195,6 +217,7 @@ if __name__ == "__main__":
     ui = Ui_MainWindow(db)
     ui.setupUi(MainWindow)
     MainWindow.setWindowTitle('Library Management System')
+    MainWindow.setWindowIcon(QtGui.QIcon(r'graphics/app_icon.png'))
     MainWindow.show()
     app.aboutToQuit.connect(db.close_connection)
     sys.exit(app.exec())

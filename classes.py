@@ -285,6 +285,7 @@ class books_table(qtw.QWidget):
                 btn2 = borrow_button("Borrow")
                 btn2.clicked.connect(lambda _, i=i: self.buttonClicked("Borrow"))
                 self.tableWidget.setCellWidget(i, len(row) + 1, btn2)
+                
     def buttonClicked(self, button):
         button_clicked = self.sender()
         if button_clicked:
@@ -305,12 +306,14 @@ class books_table(qtw.QWidget):
                     self.sell_book(data[0], data[1], data[8])
                 elif button == 'Borrow':
                     self.borrow_book(data[0], data[1])
+                    
     def sell_book(self, doc_id, doc_title, doc_price):
         sw = sell_order_window(self.db, doc_id, doc_price, doc_title, self.doc_type)
         sw.setWindowTitle('Sell Book')
         sw.setWindowIcon(qtg.QIcon(r'graphics/sell.png'))
         sw.exec()
         self.populateTable()
+        
     def borrow_book(self, doc_id, doc_title):
         bw = borrow_order_window(self.db, doc_id, doc_title)
         bw.setWindowTitle('Borrow Book')
@@ -364,8 +367,6 @@ class magazines_table(qtw.QWidget):
                 btn2 = borrow_button("Borrow")
                 btn2.clicked.connect(lambda _, i=i: self.buttonClicked("Borrow"))
                 self.tableWidget.setCellWidget(i, len(row) + 1, btn2)
-    def sell_item(self, ):
-        ...
     
     def buttonClicked(self, button):
         button_clicked = self.sender()
@@ -394,6 +395,7 @@ class magazines_table(qtw.QWidget):
         sw.setWindowIcon(qtg.QIcon(r'graphics/sell.png'))
         sw.exec()
         self.populateTable()
+
     def borrow_magazine(self, doc_id, doc_title):
         bw = borrow_order_window(self.db, doc_id, doc_title)
         bw.setWindowTitle('Borrow Magazine')
@@ -440,7 +442,6 @@ class journals_table(qtw.QWidget):
                 btn1 = borrow_button("Borrow")
                 btn1.clicked.connect(lambda _, i=i: self.buttonClicked("Borrow"))
                 self.tableWidget.setCellWidget(i, len(row), btn1)
-
 
     def borrow_journal(self, doc_id, doc_title):
         #bw short for sell window
