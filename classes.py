@@ -1,3 +1,4 @@
+from datetime import datetime
 from DB import *
 from PyQt6 import (
     QtGui as qtg,
@@ -126,6 +127,7 @@ class add_magazine_window(qtw.QDialog):
         layout.addRow(author_label)
         layout.addRow(self.author)
 
+        # publication yeaar
         self.pub_year = qtw.QDateEdit()
         initial_date = qtc.QDate(2024, 1, 1)  # Set the initial date to January 1, 2024
         self.pub_year.setDate(initial_date)
@@ -544,13 +546,22 @@ class borrowing_table(qtw.QWidget):
     def unborrowButtonClicked(self, row):
         # Get the ID of the borrowed book from the selected row
         borrow_id = self.tableWidget.item(row, 0).text()  # Assuming the ID is in the first column
+        return_date = self.tableWidget.item(row, 5).text()
 
         # Show confirmation dialog
         confirmation_dialog = UnborrowConfirmationWindow(self)
         response = confirmation_dialog.exec()
         if response == qtw.QMessageBox.StandardButton.Yes:
-            # Perform the unborrow action
-            self.unborrowBook(borrow_id)
+            # Get today's date
+            today = qtc.QDate.currentDate()
+            # Get the return date
+            return_date = qtc.QDate.fromString(return_date, "yyyy-MM-dd")
+            # Check if return date is earlier than today
+            if return_date < today:
+                # Show a message
+                qtw.QMessageBox.warning(self, "Invalid Return Date", "Return date is late")
+                # Unborrow the book
+                self.unborrowBook(borrow_id)
 
     def unborrowBook(self, borrow_id):
         # update copies_available in Document
@@ -613,9 +624,13 @@ class borrow_order_window(qtw.QDialog):
         layout.addRow(self.b_phone)
 
         #Start and return dates
+        # start date from today
+        today = datetime.today().date()
         self.start_date = qtw.QDateEdit()
+        self.start_date.setDate(today)
         layout.addRow('Start Date', self.start_date)
         self.return_date = qtw.QDateEdit()
+        self.return_date.setDate(today)
         layout.addRow('Return Date', self.return_date)
 
         #Add & cancel buttons 
