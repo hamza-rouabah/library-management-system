@@ -296,10 +296,10 @@ class books_table(qtw.QWidget):
 
              # Enable sorting when clicking on the header
             self.tableWidget.horizontalHeader().sectionClicked.connect(self.sortTable)
-
     def sortTable(self, logicalIndex):
-        self.tableWidget.sortItems(logicalIndex)
-            
+        # select wich column
+        list_column = ["Id_document", "title", "author", "publication_year", "copies_available", "total_copies", "num_pages", "genre", "price"]
+        self.tableWidget.sortItems(logicalIndex)        
     def buttonClicked(self, button):
         button_clicked = self.sender()
         if button_clicked:
@@ -319,15 +319,13 @@ class books_table(qtw.QWidget):
                 if button == 'Sell':
                     self.sell_book(data[0], data[1], data[8])
                 elif button == 'Borrow':
-                    self.borrow_book(data[0], data[1])
-                    
+                    self.borrow_book(data[0], data[1])                   
     def sell_book(self, doc_id, doc_title, doc_price):
         sw = sell_order_window(self.db, doc_id, doc_price, doc_title, self.doc_type)
         sw.setWindowTitle('Sell Book')
         sw.setWindowIcon(qtg.QIcon(r'graphics/sell.png'))
         sw.exec()
-        self.populateTable()
-        
+        self.populateTable()      
     def borrow_book(self, doc_id, doc_title):
         bw = borrow_order_window(self.db, doc_id, doc_title)
         bw.setWindowTitle('Borrow Book')
