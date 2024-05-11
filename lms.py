@@ -8,7 +8,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         #setting up the window, sizing and shit :)
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1280, 740)
+        MainWindow.resize(960, 520)
         MainWindow.setMinimumSize(QtCore.QSize(854, 500))
         MainWindow.setMaximumSize(QtCore.QSize(1280, 740))
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)

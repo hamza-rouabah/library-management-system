@@ -12,9 +12,17 @@ pip install -r requirements.txt
 ```
 * You need to install the provided font **[Poppins](graphics/Poppins)**, in order to achieve the intented look 🎨 .
 
+* After completing the steps above, run the following command to start the application:
+```shell
+python lms.py
+``` 
 ## Application Details
 <p> The application features an intuitive graphical interface with multiple tabs, a home tab where the user can add the different types of documents supported by the application, namely Books, Magazines and Journals.
 There are seperate tabs for each of these document types, in each tab there is a list of every document available with the associated attributes and two buttons, a SELL button and a BORROW button, except for the Journal which only has a BORROW button.
 
 <p> Each operation (Selling, Borrowing) has a seperate window in which goes the details of said operation (total price, quantity, borrower information, ...)
 
+## Technologies used:
+* PyQt6
+* Qt Designer
+* SQLite3
