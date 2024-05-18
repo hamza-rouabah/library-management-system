@@ -12,7 +12,9 @@ def generate_fake_book():
     copies_available = random.randint(1, 20)
     total_copies = copies_available 
     num_pages = random.randint(50, 500)
-    genre = fake.word()
+    genres = ["fiction", "non-fiction", "novel"]
+    genre = random.choice(genres)
+    # fiction or non-fiction
     price = int(round(random.uniform(5, 50), 2))
     
     return Book(title, author, publication_year, copies_available, total_copies, num_pages, genre, price)

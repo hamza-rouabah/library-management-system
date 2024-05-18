@@ -560,6 +560,7 @@ class borrowing_table(qtw.QWidget):
                 qtw.QMessageBox.warning(self, "Invalid Return Date", "Return date is late")
                 # Unborrow the book
                 self.unborrowBook(borrow_id)
+            self.unborrowBook(borrow_id)
 
     def unborrowBook(self, borrow_id):
         # update copies_available in Document
